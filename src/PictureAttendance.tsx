@@ -1,42 +1,31 @@
-// src/pages/PictureAttendance.tsx
-import { useRef, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Download, Upload, User, Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Download, Upload, User, X } from "lucide-react";
 import toast from "react-hot-toast";
-
-// ============================================
-// Frame geometry (based on 736 x 589 flyer)
-// ============================================
 
 const FLYER_WIDTH = 736;
 const FLYER_HEIGHT = 589;
 
-// White inner frame area — where the photo goes
-const FRAME_X = 98;
-const FRAME_Y = 266;
-const FRAME_W = 253;
-const FRAME_H = 373;
+const FRAME_X = 104;
+const FRAME_Y = 187;
+const FRAME_W = 183;
+const FRAME_H = 275;
 
-// Name text placement — above "will be attending"
-const NAME_CENTER_X = 570;
-const NAME_BASELINE_Y = 405;
+const NAME_CENTER_X = 540;
+const NAME_BASELINE_Y = 275;
 const NAME_MAX_WIDTH = 300;
 
-// Name typography
 const NAME_FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const NAME_FONT_WEIGHT = 800;
 const NAME_FONT_SIZE = 42;
-// const NAME_LINE_HEIGHT = 46; // vertical space between lines
 
 export function PictureAttendance() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [name, setName] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const [photoPreview, setPhotoPreview] = useState("");
   const [flyerLoaded, setFlyerLoaded] = useState(false);
   const flyerImgRef = useRef<HTMLImageElement | null>(null);
 
-  // Load the flyer image once on mount
   useEffect(() => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -50,10 +39,9 @@ export function PictureAttendance() {
     };
   }, []);
 
-  // Redraw whenever name, photo, or flyer changes
   useEffect(() => {
     if (!flyerLoaded) return;
-    drawCanvas();
+    void drawCanvas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, photoPreview, flyerLoaded]);
 
@@ -68,22 +56,18 @@ export function PictureAttendance() {
     canvas.width = FLYER_WIDTH;
     canvas.height = FLYER_HEIGHT;
 
-    // 1. Flyer background
     ctx.clearRect(0, 0, FLYER_WIDTH, FLYER_HEIGHT);
     ctx.drawImage(flyer, 0, 0, FLYER_WIDTH, FLYER_HEIGHT);
 
-    // 2. Photo inside the frame
     if (photoPreview) {
       await drawPhotoInsideFrame(ctx, photoPreview);
     }
 
-    // 3. Name above "will be attending"
     if (name.trim()) {
       drawName(ctx, name.trim());
     }
   };
 
-  // Cover-fit the photo inside the frame
   const drawPhotoInsideFrame = (
     ctx: CanvasRenderingContext2D,
     src: string,
@@ -120,9 +104,6 @@ export function PictureAttendance() {
     });
   };
 
-  // ============================================
-  // Name rendering with word wrapping
-  // ============================================
   const drawName = (ctx: CanvasRenderingContext2D, text: string) => {
     const words = text.split(/\s+/).filter(Boolean);
     if (words.length === 0) return;
@@ -130,19 +111,15 @@ export function PictureAttendance() {
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
 
-    // Start with the preferred font size
     let fontSize = NAME_FONT_SIZE;
     let lines: string[] = [];
     let fits = false;
 
-    // Try the current font size; if any single word is still too wide,
-    // shrink the font by 2px and try again. Repeat until every word fits.
     while (!fits && fontSize >= 16) {
       ctx.font = `${NAME_FONT_WEIGHT} ${fontSize}px ${NAME_FONT_FAMILY}`;
 
-      // Check every individual word fits within NAME_MAX_WIDTH
       const allWordsFit = words.every(
-        (w) => ctx.measureText(w).width <= NAME_MAX_WIDTH,
+        (word) => ctx.measureText(word).width <= NAME_MAX_WIDTH,
       );
 
       if (!allWordsFit) {
@@ -150,7 +127,6 @@ export function PictureAttendance() {
         continue;
       }
 
-      // All words fit individually — now greedily pack them into lines
       const packed: string[] = [];
       let currentLine = "";
 
@@ -165,35 +141,27 @@ export function PictureAttendance() {
           currentLine = word;
         }
       }
-      if (currentLine) packed.push(currentLine);
 
+      if (currentLine) packed.push(currentLine);
       lines = packed;
       fits = true;
     }
 
-    // Safety fallback if even at 16px something didn't fit (very unlikely)
     if (!fits) {
       ctx.font = `${NAME_FONT_WEIGHT} 16px ${NAME_FONT_FAMILY}`;
       lines = [words[0]];
     }
 
-    // Re-apply the final font size for drawing
     ctx.font = `${NAME_FONT_WEIGHT} ${fontSize}px ${NAME_FONT_FAMILY}`;
-
-    // Scale line height with the font size so spacing stays proportional
     const lineHeight = Math.round(fontSize * 1.1);
-
-    // Vertically center the block of lines around NAME_BASELINE_Y
     const totalHeight = (lines.length - 1) * lineHeight;
     const startY = NAME_BASELINE_Y - totalHeight / 2;
 
-    // Draw each line with shadow + thin outline
-    lines.forEach((line, i) => {
-      const y = startY + i * lineHeight;
+    lines.forEach((line, index) => {
+      const y = startY + index * lineHeight;
 
-      // Shadow pass
       ctx.save();
-      ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
+      ctx.shadowColor = "rgba(15, 23, 42, 0.45)";
       ctx.shadowBlur = 10;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 3;
@@ -202,10 +170,9 @@ export function PictureAttendance() {
       ctx.fillText(line, NAME_CENTER_X, y);
       ctx.restore();
 
-      // Outline pass
       ctx.save();
       ctx.lineWidth = 1.4;
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
+      ctx.strokeStyle = "rgba(15, 23, 42, 0.35)";
       ctx.font = `${NAME_FONT_WEIGHT} ${fontSize}px ${NAME_FONT_FAMILY}`;
       ctx.strokeText(line, NAME_CENTER_X, y);
       ctx.restore();
@@ -233,14 +200,15 @@ export function PictureAttendance() {
     ctx.closePath();
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file.");
       return;
     }
+
     if (file.size > 8 * 1024 * 1024) {
       toast.error("Image is too large. Please use an image under 8MB.");
       return;
@@ -248,8 +216,8 @@ export function PictureAttendance() {
 
     setPhoto(file);
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      setPhotoPreview(ev.target?.result as string);
+    reader.onload = (loadEvent) => {
+      setPhotoPreview(loadEvent.target?.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -273,6 +241,7 @@ export function PictureAttendance() {
         toast.error("Failed to generate the image.");
         return;
       }
+
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -284,116 +253,91 @@ export function PictureAttendance() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f0ee] px-4 py-6 text-[#2a0d18] sm:px-6 sm:py-10">
-      <div className="mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between sm:mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#5b1e2e] sm:gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to home
-          </Link>
-          <div className="rounded-full bg-white/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5b1e2e] backdrop-blur-[8px]">
-            I'll Be Attending
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),transparent_35%),linear-gradient(180deg,#f5f9ff_0%,#edf6ff_100%)] px-4 py-5 text-slate-900">
+      <div className="mx-auto flex max-w-md flex-col gap-4">
+        <header className="pt-2 text-center">
+          <div className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-white/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-sky-700 shadow-sm">
+            DLW
           </div>
-        </div>
-
-        <div className="mb-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.26em] text-[#5b1e2e] shadow-sm backdrop-blur-[8px]">
-            <Sparkles className="h-3.5 w-3.5" />
-            Personalize your flyer
-          </div>
-          <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] text-[#220b13] sm:text-4xl md:text-5xl">
-            Create your "I Will Be Attending" flyer
+          <h1 className="mt-3 text-[2rem] font-black leading-none tracking-[-0.06em] text-sky-950">
+            I Will Be Attending
           </h1>
-          <p className="mt-2 max-w-2xl text-base leading-7 text-[#5b1e2e]/80 sm:text-lg">
-            Upload your photo and type your name. Your flyer will be ready to
-            download and share instantly.
+          <p className="mt-2 text-sm text-sky-700">
+            Upload your photo and name to create your flyer.
           </p>
+        </header>
+
+        <div className="rounded-[28px] bg-white/80 p-3 shadow-[0_18px_40px_rgba(37,99,235,0.08)] ring-1 ring-sky-100 backdrop-blur-sm">
+          <div className="rounded-[22px] bg-sky-50 p-2.5">
+            {!flyerLoaded ? (
+              <div className="flex aspect-[736/920] w-full items-center justify-center rounded-[18px] bg-sky-100 text-sm font-medium text-sky-700">
+                Loading flyer…
+              </div>
+            ) : (
+              <canvas
+                ref={canvasRef}
+                className="w-full rounded-[18px] shadow-[0_10px_30px_rgba(59,130,246,0.12)]"
+                style={{ aspectRatio: `${FLYER_WIDTH} / ${FLYER_HEIGHT}` }}
+              />
+            )}
+          </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          {/* Live Preview */}
-          <div className="rounded-2xl bg-white/70 p-4 shadow-[0_2px_16px_rgba(0,0,0,0.06)] backdrop-blur-[12px] sm:p-6">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-[#5b1e2e]/60">
-              Live Preview
-            </p>
-            <div className="flex justify-center">
-              {!flyerLoaded ? (
-                <div className="flex aspect-[736/920] w-full max-w-md animate-pulse items-center justify-center rounded-xl bg-[#5b1e2e]/5 text-sm text-[#5b1e2e]/60">
-                  Loading flyer…
-                </div>
-              ) : (
-                <canvas
-                  ref={canvasRef}
-                  className="w-full max-w-md rounded-xl shadow-lg ring-1 ring-black/5"
-                  style={{ aspectRatio: `${FLYER_WIDTH} / ${FLYER_HEIGHT}` }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Controls */}
+        <div className="rounded-[28px] bg-white/85 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.06)] ring-1 ring-sky-100 backdrop-blur-sm">
           <div className="space-y-4">
-            {/* Name field */}
-            <div className="rounded-2xl bg-white/70 p-4 shadow-[0_2px_16px_rgba(0,0,0,0.06)] backdrop-blur-[12px] sm:p-6">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-[#5b1e2e]/60">
+            <div>
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.24em] text-sky-700">
                 Your Name
-              </p>
+              </label>
               <div className="relative">
-                <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5b1e2e]/60" />
+                <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
                 <input
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(event) => setName(event.target.value)}
                   maxLength={60}
-                  placeholder="e.g. Mrs. Esther Bode"
-                  className="w-full rounded-xl border border-[#5b1e2e]/10 bg-white/80 py-3 pl-11 pr-4 text-sm text-[#290d1a] outline-none transition placeholder:text-[#5b1e2e]/40 focus:border-[#5b1e2e]/30 focus:bg-white/90 focus:shadow-[0_0_0_3px_rgba(91,30,46,0.05)]"
+                  placeholder="Enter your name"
+                  className="w-full rounded-2xl border border-sky-200 bg-sky-50 py-3 pl-11 pr-3 text-sm text-sky-950 outline-none transition placeholder:text-sky-400 focus:border-sky-400 focus:bg-white focus:shadow-[0_0_0_4px_rgba(59,130,246,0.08)]"
                 />
               </div>
-              <p className="mt-2 text-[11px] text-[#5b1e2e]/60">
-                {name.length}/60 characters · long names will wrap onto new
-                lines
-              </p>
             </div>
 
-            {/* Photo upload */}
-            <div className="rounded-2xl bg-white/70 p-4 shadow-[0_2px_16px_rgba(0,0,0,0.06)] backdrop-blur-[12px] sm:p-6">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.25em] text-[#5b1e2e]/60">
+            <div>
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.24em] text-sky-700">
                 Your Photo
-              </p>
+              </label>
 
               {!photoPreview ? (
                 <label
                   htmlFor="photo-upload"
-                  className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#5b1e2e]/25 bg-white/60 px-4 py-10 text-center text-sm font-medium text-[#5b1e2e] transition hover:border-[#5b1e2e]/50 hover:bg-white/80"
+                  className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50 px-4 py-8 text-center transition hover:border-sky-300 hover:bg-sky-100"
                 >
-                  <Upload className="h-6 w-6" />
-                  <span className="font-semibold">Tap to upload a photo</span>
-                  <span className="text-[11px] text-[#5b1e2e]/60">
-                    JPG, PNG or WEBP · max 8MB
+                  <Upload className="h-6 w-6 text-sky-600" />
+                  <span className="text-sm font-semibold text-sky-800">
+                    Tap to upload a photo
+                  </span>
+                  <span className="text-[11px] text-sky-500">
+                    JPG, PNG or WEBP
                   </span>
                 </label>
               ) : (
-                <div className="flex items-center gap-3 rounded-xl border border-[#5b1e2e]/10 bg-white/80 p-3">
+                <div className="flex items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50 p-3">
                   <img
                     src={photoPreview}
-                    alt="Your upload"
-                    className="h-16 w-16 rounded-lg object-cover ring-1 ring-[#5b1e2e]/10"
+                    alt="Preview"
+                    className="h-16 w-16 rounded-xl object-cover ring-1 ring-sky-200"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-[#2a0d18]">
+                    <p className="truncate text-sm font-semibold text-sky-950">
                       {photo?.name}
                     </p>
-                    <p className="text-[11px] text-[#5b1e2e]/60">
+                    <p className="text-[11px] text-sky-500">
                       {photo && (photo.size / 1024).toFixed(0)} KB
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={clearPhoto}
-                    className="rounded-full p-2 text-[#5b1e2e]/60 transition hover:bg-[#5b1e2e]/10"
+                    className="rounded-full p-2 text-sky-600 transition hover:bg-sky-100"
                     aria-label="Remove photo"
                   >
                     <X className="h-4 w-4" />
@@ -410,20 +354,15 @@ export function PictureAttendance() {
               />
             </div>
 
-            {/* Download */}
             <button
               type="button"
               onClick={handleDownload}
               disabled={!flyerLoaded}
-              className="inline-flex w-full items-center cursor-pointer justify-center gap-2 rounded-xl bg-[#5b1e2e] px-4 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#5b1e2e]/20 transition hover:bg-[#431724] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-700 px-4 py-3 text-base font-semibold text-white shadow-[0_14px_28px_rgba(37,99,235,0.28)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Download className="h-5 w-5" />
-              Download My Flyer
+              <Download className="h-4 w-4" />
+              Download Flyer
             </button>
-
-            <p className="text-center text-[11px] text-[#5b1e2e]/60">
-              Tip: Use a clear, well-lit photo facing forward for best results.
-            </p>
           </div>
         </div>
       </div>
