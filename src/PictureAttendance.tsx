@@ -253,30 +253,30 @@ export function PictureAttendance() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),transparent_35%),linear-gradient(180deg,#f5f9ff_0%,#edf6ff_100%)] px-4 py-5 text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),transparent_35%),linear-gradient(180deg,#f5f9ff_0%,#edf6ff_100%)] text-slate-900">
       <div className="mx-auto flex max-w-md flex-col gap-4">
-        <header className="rounded-[22px] border border-sky-100 bg-white/85 p-3 shadow-[0_10px_24px_rgba(59,130,246,0.08)] backdrop-blur-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
+        <header className="border-b border-sky-100 bg-white/90 px-0 py-3 shadow-[0_8px_20px_rgba(59,130,246,0.04)] backdrop-blur-sm">
+          <div className="flex items-center gap-2.5 px-3">
+            <div className="flex items-center gap-0">
               <img
                 src="/dlw.png"
                 alt="DLW logo"
-                className="h-10 w-10 rounded-lg object-contain bg-sky-50 p-1"
+                className="h-17 w-17 object-contain"
               />
               <img
                 src="/mothers.png"
                 alt="Women logo"
-                className="h-10 w-16 rounded-lg object-contain bg-sky-50 p-1"
+                className="h-11 w-16 object-contain"
               />
             </div>
 
-            <div className="flex-1 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-700">
+            <div className="flex-1 text-left">
+              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-sky-700">
                 Anniversary
               </p>
-              <h1 className="text-[0.8rem] font-black leading-[1.1] tracking-[-0.04em] text-sky-950">
+              <h1 className="text-[0.9rem] font-extrabold leading-[1.15] tracking-[-0.04em] text-sky-950">
                 DLW Women
-                <span className="mt-0.5 block text-[0.62rem] font-bold tracking-[0.18em]">
+                <span className="mt-0.5 block text-[0.6rem] font-bold tracking-[0.16em] text-sky-700">
                   ANNIVERSARY
                 </span>
               </h1>
