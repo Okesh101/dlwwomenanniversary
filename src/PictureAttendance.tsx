@@ -255,16 +255,33 @@ export function PictureAttendance() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.18),transparent_35%),linear-gradient(180deg,#f5f9ff_0%,#edf6ff_100%)] px-4 py-5 text-slate-900">
       <div className="mx-auto flex max-w-md flex-col gap-4">
-        <header className="pt-2 text-center">
-          <div className="inline-flex items-center justify-center rounded-full border border-sky-200 bg-white/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.28em] text-sky-700 shadow-sm">
-            DLW
+        <header className="rounded-[22px] border border-sky-100 bg-white/85 p-3 shadow-[0_10px_24px_rgba(59,130,246,0.08)] backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <img
+                src="/dlw.png"
+                alt="DLW logo"
+                className="h-10 w-10 rounded-lg object-contain bg-sky-50 p-1"
+              />
+              <img
+                src="/mothers.png"
+                alt="Women logo"
+                className="h-10 w-16 rounded-lg object-contain bg-sky-50 p-1"
+              />
+            </div>
+
+            <div className="flex-1 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-700">
+                Anniversary
+              </p>
+              <h1 className="text-[0.8rem] font-black leading-[1.1] tracking-[-0.04em] text-sky-950">
+                DLW Women
+                <span className="mt-0.5 block text-[0.62rem] font-bold tracking-[0.18em]">
+                  ANNIVERSARY
+                </span>
+              </h1>
+            </div>
           </div>
-          <h1 className="mt-3 text-[2rem] font-black leading-none tracking-[-0.06em] text-sky-950">
-            I Will Be Attending
-          </h1>
-          <p className="mt-2 text-sm text-sky-700">
-            Upload your photo and name to create your flyer.
-          </p>
         </header>
 
         <div className="rounded-[28px] bg-white/80 p-3 shadow-[0_18px_40px_rgba(37,99,235,0.08)] ring-1 ring-sky-100 backdrop-blur-sm">
