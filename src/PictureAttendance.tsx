@@ -404,7 +404,7 @@ const NAME_FONT_FAMILY = '"Inter", "Helvetica Neue", Arial, sans-serif';
 const NAME_FONT_WEIGHT = 800;
 const NAME_FONT_SIZE = 42;
 
-export function PictureAttendance(): JSX.Element {
+export function PictureAttendance() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [name, setName] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -619,8 +619,15 @@ export function PictureAttendance(): JSX.Element {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (!name.trim() && !photo) {
-      toast.error("Add your name and photo first.");
+    // 1. Require a name before downloading
+    if (!name.trim()) {
+      toast.error("Please enter your name first.");
+      return;
+    }
+
+    // 2. Require a photo before downloading
+    if (!photo) {
+      toast.error("Please upload your photo first.");
       return;
     }
 
@@ -633,7 +640,7 @@ export function PictureAttendance(): JSX.Element {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `DLW-Women-Anniversary-${name.trim() || "me"}.png`;
+      link.download = `DLW-Women-Anniversary-${name.trim()}.png`;
       link.click();
       URL.revokeObjectURL(url);
       toast.success("Flyer downloaded!");
